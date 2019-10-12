@@ -38,6 +38,7 @@ import quickfix.field.ClOrdID;
 import quickfix.field.CumQty;
 import quickfix.field.Currency;
 import quickfix.field.CxlRejResponseTo;
+import quickfix.field.DeliverToSubID;
 import quickfix.field.ExecID;
 import quickfix.field.ExecRefID;
 import quickfix.field.ExecTransType;
@@ -696,6 +697,13 @@ public class FIXimulatorApplication extends MessageCracker
             executionReport.set(new IDSource(order.getIdSource()));
         }
         
+        String oboSubID = order.getOnBehalfOfSubID();
+        if ( oboSubID != null) {
+             DeliverToSubID deliverToSubID = new DeliverToSubID(oboSubID);
+             Header header = (Header) executionReport.getHeader();
+             header.set( deliverToSubID );              
+        }
+
         // *** Send message ***
         sendMessage(executionReport);
         executions.add(execution);

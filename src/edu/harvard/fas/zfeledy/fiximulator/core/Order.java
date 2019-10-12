@@ -12,6 +12,7 @@ package edu.harvard.fas.zfeledy.fiximulator.core;
 
 import quickfix.FieldNotFound;
 import quickfix.field.ClOrdID;
+import quickfix.field.OnBehalfOfSubID;
 import quickfix.field.OrdType;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
@@ -21,6 +22,7 @@ import quickfix.field.IDSource;
 import quickfix.field.Side;
 import quickfix.field.Symbol;
 import quickfix.field.TimeInForce;
+import quickfix.fix42.Message.Header;
 
 public class Order implements Cloneable {
     private static int nextID = 1;
@@ -43,6 +45,7 @@ public class Order implements Cloneable {
     private double executed = 0.0;
     private double limit = 0.0;
     private double avgPx = 0.0;
+    private String oboSubID = null;
     
     @Override
     public Order clone() {
@@ -124,6 +127,16 @@ public class Order implements Cloneable {
             IDSource idSrc = new IDSource();
             message.get(idSrc);
             this.setIdSource(idSrc.getValue());
+        } catch (FieldNotFound ex) {}    
+        
+        // OnBehalfOfSubID
+        try {
+            OnBehalfOfSubID id = new OnBehalfOfSubID();
+            Header header = (Header) message.getHeader();
+            header.get(id);
+            if (id != null) {
+                 this.oboSubID = id.getValue();
+            }
         } catch (FieldNotFound ex) {}    
         
         System.out.println("SecurityID: " + this.getSecurityID());
@@ -321,6 +334,10 @@ public class Order implements Cloneable {
 
     public void setAvgPx(double avgPx) {
         this.avgPx = avgPx;
+    }
+
+    public String getOnBehalfOfSubID() {
+        return oboSubID;
     }
 
     public double getExecuted() {
